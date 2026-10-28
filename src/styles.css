@@ -140,9 +140,9 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .tbl2 .pbar .gbar{flex:1;margin:0}
 .tbl2 .pbar b{font-variant-numeric:tabular-nums;width:40px;text-align:right}
 .scroll-x{overflow-x:auto}
-.tl{display:grid;grid-template-columns:150px repeat(5,minmax(92px,1fr));min-width:780px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tl{display:grid;grid-template-columns:150px repeat(6,minmax(92px,1fr));min-width:880px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .tl>div{padding:10px 12px;border-bottom:1px solid var(--line2);border-right:1px solid var(--line2);min-width:0}
-.tl>div:nth-child(6n){border-right:0}
+.tl>div:nth-child(7n){border-right:0}
 .tl .th{background:#EFEBE3;font-size:12px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;gap:2px}
 .tl .th small{font-weight:500}
 .tl .th.now{background:var(--tint);color:var(--green)}

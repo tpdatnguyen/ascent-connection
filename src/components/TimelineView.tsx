@@ -1,16 +1,15 @@
 import { Fragment, type CSSProperties } from 'react';
-import { weekOf, weekStart } from '../domain/dates';
-import { firstName, MILESTONES } from '../domain/plan';
+import { weekOf, weekOfKey, weekStart } from '../domain/dates';
+import { firstName, MILESTONES, PLAN_WEEKS, REVIEW } from '../domain/plan';
 import type { DerivedGoal } from '../domain/selectors';
 import { Avatar } from './common';
 
-const WEEKS = [1, 2, 3, 4, 5];
-/** Which milestone is due in which week. */
-const FLAGS: Record<number, number> = { 2: 0, 3: 1, 5: 2 };
+const WEEKS = Array.from({ length: PLAN_WEEKS }, (_, i) => i + 1);
+const REVIEW_WEEK = weekOfKey(REVIEW.due);
 
 export function TimelineView({ goals, pct, now = weekOf(new Date()) }: { goals: DerivedGoal[]; pct: number; now?: number }) {
   const nowCls = (w: number) => (w === now ? ' now' : '');
-  // The grid relies on a flat list of 6 cells per row (.tl>div:nth-child(6n)).
+  // The grid relies on a flat list of 1 + PLAN_WEEKS (7) cells per row (.tl>div:nth-child(7n)).
   return (
     <>
       <div className="scroll-x">
@@ -21,12 +20,14 @@ export function TimelineView({ goals, pct, now = weekOf(new Date()) }: { goals: 
           ))}
           <div className="nm" style={{ color: 'var(--muted)' }}>Milestones</div>
           {WEEKS.map((w) => {
-            const m = FLAGS[w] !== undefined ? MILESTONES[FLAGS[w]] : null;
-            const hit = m ? pct >= m.thr : false;
+            const ms = MILESTONES.filter((x) => weekOfKey(x.due) === w);
             return (
               <div key={'m' + w} className={'cell' + nowCls(w)}>
-                {m ? <span className={'flag' + (hit ? ' hit' : '')}>{m.name}{hit ? ' ✓' : ''}<br />due {m.dueLabel}</span> : null}
-                {w === 4 ? <span className="flag gng">Launch Readiness Review<br />Mon, Nov 23</span> : null}
+                {ms.map((m) => {
+                  const hit = pct >= m.thr;
+                  return <span key={m.key} className={'flag' + (hit ? ' hit' : '')}>{m.name}{hit ? ' ✓' : ''}<br />due {m.dueLabel}</span>;
+                })}
+                {w === REVIEW_WEEK ? <span className="flag gng">Launch Readiness Review<br />{REVIEW.dueLabel}</span> : null}
               </div>
             );
           })}

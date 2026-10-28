@@ -46,7 +46,7 @@ export function Splash({ onOpen }: { onOpen: () => void }) {
           <span>Connection.App</span>
         </div>
         <h1>The <span>Ascent</span></h1>
-        <p className="sub">5 weeks &middot; Kickoff Day Monday, November 30, 2026</p>
+        <p className="sub">6 weeks &middot; Kickoff Day Monday, November 30, 2026</p>
         <div className="stack">
           <button className="btn" type="button" onClick={onOpen}>Open the Plan</button>
         </div>

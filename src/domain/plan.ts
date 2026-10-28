@@ -1,5 +1,12 @@
 import type { Goal, Milestone, PlanState, Step } from './types';
 
+/** First Monday of the plan as [year, monthIndex, day], local time. */
+export const PLAN_START = [2026, 9, 19] as const;
+export const PLAN_WEEKS = 6;
+
+/** Launch Readiness Review, shown on the timeline. */
+export const REVIEW = { due: '2026-11-23', dueLabel: 'Mon, Nov 23' };
+
 export const MILESTONES: Milestone[] = [
   { key: 'm1', name: 'Foundation', thr: 30, due: '2026-11-09', dueLabel: 'Mon, Nov 9', reward: 'Team Treat' },
   { key: 'm2', name: 'Built', thr: 65, due: '2026-11-16', dueLabel: 'Mon, Nov 16', reward: 'Team Lunch' },

@@ -37,7 +37,7 @@ export function AuthGate({ plan }: { plan: PlanApi }) {
       <div className="wrap">
         <div className="top">
           <h2>The <span>Ascent</span></h2>
-          <span className="kick">5 weeks · Kickoff Day Monday, November 30, 2026</span>
+          <span className="kick">6 weeks · Kickoff Day Monday, November 30, 2026</span>
         </div>
         <div className="setup panel">{body}</div>
       </div>

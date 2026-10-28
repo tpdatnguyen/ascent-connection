@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { weekOf } from './dates';
+import { weekOf, weekOfKey } from './dates';
 import { defaultPlan, MILESTONES } from './plan';
 import { canTick, climberPosition, deriveGoals, milestonesCrossed, milestoneStatus, recentProgress, teamPercent } from './selectors';
 import type { Meta } from './types';
@@ -125,31 +125,38 @@ describe('milestoneStatus', () => {
 describe('weekOf', () => {
   const local = (y: number, m: number, d: number, h = 0, min = 0) => new Date(y, m - 1, d, h, min).toISOString();
   it('clamps dates before the start to week 1', () => {
-    expect(weekOf(local(2026, 10, 25, 23, 59))).toBe(1);
+    expect(weekOf(local(2026, 10, 18))).toBe(1);
+    expect(weekOf(local(2026, 10, 18, 23, 59))).toBe(1);
     expect(weekOf(local(2026, 1, 1))).toBe(1);
   });
-  it('starts week 1 at local midnight Mon Oct 26', () => {
-    expect(weekOf(local(2026, 10, 26))).toBe(1);
-    expect(weekOf(local(2026, 10, 26, 12))).toBe(1);
-    expect(weekOf(local(2026, 11, 1, 12))).toBe(1);
-    // Exact 7-day periods from local midnight (same formula as the original page).
-    // Where DST ends on Nov 1 (e.g. the US) the last hour of Sunday Nov 1 is
-    // already in week 2, so only check up to 22:59 here.
-    expect(weekOf(local(2026, 11, 1, 22, 59))).toBe(1);
+  it('starts week 1 at local midnight Mon Oct 19', () => {
+    expect(weekOf(local(2026, 10, 19))).toBe(1);
+    expect(weekOf(local(2026, 10, 19, 12))).toBe(1);
+    expect(weekOf(local(2026, 10, 25))).toBe(1);
+    expect(weekOf(local(2026, 10, 25, 23, 59))).toBe(1);
   });
   it('rolls over each Monday', () => {
-    expect(weekOf(local(2026, 11, 2))).toBe(2);
-    expect(weekOf(local(2026, 11, 9))).toBe(3);
-    expect(weekOf(local(2026, 11, 23))).toBe(5);
+    expect(weekOf(local(2026, 10, 26))).toBe(2);
+    expect(weekOf(local(2026, 10, 28))).toBe(2);
+    expect(weekOf(local(2026, 11, 2))).toBe(3);
+    expect(weekOf(local(2026, 11, 9))).toBe(4);
+    expect(weekOf(local(2026, 11, 16))).toBe(5);
+    expect(weekOf(local(2026, 11, 23))).toBe(6);
   });
-  it('clamps Kickoff Day and later to week 5', () => {
-    expect(weekOf(local(2026, 11, 29, 23, 59))).toBe(5);
-    expect(weekOf(local(2026, 11, 30))).toBe(5);
-    expect(weekOf(local(2026, 12, 1))).toBe(5);
-    expect(weekOf(local(2027, 3, 1))).toBe(5);
+  it('clamps Kickoff Day and later to week 6', () => {
+    expect(weekOf(local(2026, 11, 29, 23, 59))).toBe(6);
+    expect(weekOf(local(2026, 11, 30))).toBe(6);
+    expect(weekOf(local(2026, 12, 1))).toBe(6);
+    expect(weekOf(local(2027, 3, 1))).toBe(6);
   });
   it('accepts Date objects', () => {
-    expect(weekOf(new Date(2026, 10, 3))).toBe(2);
+    expect(weekOf(new Date(2026, 10, 3))).toBe(3);
+  });
+  it('places milestones and the review by date', () => {
+    expect(weekOfKey('2026-11-09')).toBe(4);
+    expect(weekOfKey('2026-11-16')).toBe(5);
+    expect(weekOfKey('2026-11-23')).toBe(6);
+    expect(weekOfKey('2026-11-30')).toBe(6);
   });
 });
 
