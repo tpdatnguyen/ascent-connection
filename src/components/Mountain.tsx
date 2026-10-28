@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { Fragment, memo } from 'react';
 import { MILESTONES } from '../domain/plan';
 import { CLIMB_POINTS, climbNodeReached, climberPosition } from '../domain/selectors';
 
@@ -22,10 +22,10 @@ export const Mountain = memo(function Mountain({ pct }: { pct: number }) {
       {CLIMB_POINTS.map((p, i) => {
         const on = climbNodeReached(i, pct);
         return (
-          <g key={i}>
+          <Fragment key={i}>
             <circle cx={p[0]} cy={p[1]} r="6" fill={on ? '#154230' : '#FBF9F5'} stroke={on ? '#154230' : '#8E897F'} strokeWidth="2" />
             <text x={p[0] - 12} y={p[1] + 4} textAnchor="end" fontSize="11" fontWeight="600" fill="#101111">{LABELS[i]}</text>
-          </g>
+          </Fragment>
         );
       })}
       <path d="M470 48V14" stroke="#101111" strokeWidth="1.5" /><path d="M470 14l18 6l-18 6z" fill="#5D1E21" />

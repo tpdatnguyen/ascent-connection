@@ -46,8 +46,8 @@ export function Peek({ g, canProgress, onTick, onClose }: {
 
   return (
     <>
-      <div className="scrim" hidden={!open} onClick={onClose} />
-      <aside ref={panel} className={'peek' + (open ? ' open' : '')} role="dialog" aria-modal="true" aria-label="Goal details" aria-hidden={!open}>
+      <div className="scrim" id="scrim" hidden={!open} onClick={onClose} />
+      <aside ref={panel} id="peek" className={'peek' + (open ? ' open' : '')} role="dialog" aria-modal="true" aria-label="Goal details" aria-hidden={!open}>
         {shown ? (
           <>
             <button ref={closeBtn} type="button" className="x" onClick={onClose} aria-label="Close">✕</button>
