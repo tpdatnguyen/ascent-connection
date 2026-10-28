@@ -1,4 +1,5 @@
-import { COLORS, MILESTONES } from './plan';
+import { weekOf } from './dates';
+import { COLORS, MILESTONES, PLAN_WEEKS } from './plan';
 import type { Meta, Milestone, MilestoneKey, PlanState } from './types';
 
 export interface DerivedStep {
@@ -128,4 +129,11 @@ export function climberPosition(v: number): { i0: number; cx: number; cy: number
 
 export function climbNodeReached(i: number, v: number): boolean {
   return i === 0 || v >= CLIMB_MARKS[i];
+}
+
+/** Finished-step dots per plan week for one person; index 0 is week 1. */
+export function stepDotsByWeek(g: DerivedGoal): number[] {
+  const dots = new Array<number>(PLAN_WEEKS).fill(0);
+  for (const s of g.steps) if (s.at) dots[weekOf(s.at) - 1]++;
+  return dots;
 }

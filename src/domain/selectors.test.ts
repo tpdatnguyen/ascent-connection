@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { weekOf, weekOfKey } from './dates';
-import { defaultPlan, MILESTONES } from './plan';
-import { canTick, climberPosition, deriveGoals, milestonesCrossed, milestoneStatus, recentProgress, teamPercent } from './selectors';
+import { KICKOFF_COLUMN, timelineColumn, weekOf, weekOfKey } from './dates';
+import { defaultPlan, MILESTONES, REVIEW } from './plan';
+import { canTick, climberPosition, deriveGoals, milestonesCrossed, milestoneStatus, nextMilestone, recentProgress, stepDotsByWeek, teamPercent } from './selectors';
 import type { Meta } from './types';
 
 /** Default plan with the first `counts[i]` steps of goal i done. */
@@ -176,5 +176,55 @@ describe('recentProgress and climber', () => {
     expect(climberPosition(65)).toMatchObject({ cx: 350, cy: 150 });
     expect(climberPosition(100)).toMatchObject({ cx: 470, cy: 48 });
     expect(climberPosition(15).cx).toBeCloseTo(147.5);
+  });
+});
+
+describe('timeline', () => {
+  const local = (d: number, m = 10) => new Date(2026, m - 1, d, 12).toISOString();
+  /** Fixture: each of the 4 people ticked exactly their first step on the given days. */
+  const firstSteps = (days: number[]) => {
+    const p = defaultPlan();
+    p.goals.forEach((g, i) => { p.progress[g.id + 's1'] = { goal: g.id, at: local(days[i]) }; });
+    return deriveGoals(p);
+  };
+
+  it('Fixture A: first steps in week 1 give one dot per row, 20% each and 20% team', () => {
+    const goals = firstSteps([21, 22, 23, 24]);
+    goals.forEach((g) => {
+      expect(stepDotsByWeek(g)).toEqual([1, 0, 0, 0, 0, 0]);
+      expect(g.pct).toBe(20);
+    });
+    const pct = teamPercent(goals);
+    expect(pct).toBe(20);
+    expect(MILESTONES.filter((m) => pct >= m.thr)).toEqual([]);
+    const nxt = nextMilestone(pct);
+    expect(`Next: ${nxt?.name} at ${nxt?.thr}% · due ${nxt?.dueLabel}`).toBe('Next: Foundation at 30% · due Mon, Nov 9');
+  });
+
+  it('Fixture B: the same ticks on Oct 28 move the dots to week 2', () => {
+    const goals = firstSteps([28, 28, 28, 28]);
+    goals.forEach((g) => expect(stepDotsByWeek(g)).toEqual([0, 1, 0, 0, 0, 0]));
+    expect(teamPercent(goals)).toBe(20);
+  });
+
+  it('places each milestone by its due date', () => {
+    const col = (key: string) => timelineColumn(MILESTONES.find((m) => m.key === key)!.due);
+    expect(col('m1')).toBe(4);
+    expect(col('m2')).toBe(5);
+    expect(timelineColumn(REVIEW.due)).toBe(6);
+    expect(col('m3')).toBe(KICKOFF_COLUMN);
+    expect(KICKOFF_COLUMN).toBe(7);
+  });
+
+  it('keeps the review alone in week 6', () => {
+    expect(MILESTONES.filter((m) => timelineColumn(m.due) === 6)).toEqual([]);
+  });
+
+  it('puts days between Monday boundaries in the right column', () => {
+    expect(timelineColumn('2026-10-18')).toBe(1);
+    expect(timelineColumn('2026-10-25')).toBe(1);
+    expect(timelineColumn('2026-10-26')).toBe(2);
+    expect(timelineColumn('2026-11-29')).toBe(6);
+    expect(timelineColumn('2026-12-15')).toBe(KICKOFF_COLUMN);
   });
 });

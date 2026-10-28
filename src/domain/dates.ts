@@ -43,3 +43,13 @@ export function weekOfKey(k: string): number {
 export function weekStart(w: number): Date {
   return new Date(PLAN_START[0], PLAN_START[1], PLAN_START[2] + 7 * (w - 1));
 }
+
+/** Timeline column for a due date: its plan week, or KICKOFF_COLUMN once past the last week. */
+export const KICKOFF_COLUMN = PLAN_WEEKS + 1;
+export function timelineColumn(k: string): number {
+  const [y, m, d] = k.split('-').map(Number);
+  const [sy, sm, sd] = PLAN_START;
+  // Whole days via UTC so DST can't shift the result.
+  const days = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(sy, sm, sd)) / DAY);
+  return Math.min(KICKOFF_COLUMN, Math.max(1, Math.floor(days / 7) + 1));
+}
