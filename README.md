@@ -16,6 +16,15 @@ npm run build:single # one self-contained dist/index.html (JS + CSS inlined)
 With no setup the app uses **LocalStore** (this browser's `localStorage`, key
 `ascent_plan_local_v2`, the same key and format as the single-file page, so existing data carries over).
 
+## Shared plan on Vercel (Firebase)
+
+Set `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID` and `VITE_FIREBASE_APP_ID` (see
+`.env.example`) in Vercel's Environment Variables and redeploy. The app then uses
+**FirebaseStore** (Cloud Firestore, live updates) and the badge reads "Live · everyone sees
+updates". Paste `firestore.rules` into Firestore → Rules. There is no sign-in, so the rules
+decide what people with the link may change; a refused write hides the matching controls.
+Without the variables the app keeps using LocalStore.
+
 ## Publish as a claude.ai Artifact
 
 Run `npm run build:single` and publish `dist/index.html`. React is bundled into the file. The
@@ -29,7 +38,8 @@ automatically, so everyone sees live updates.
 src/
   domain/      pure logic, no React: types, plan constants, dates (weekOf), selectors
                (deriveGoals, teamPercent, canTick, milestonesCrossed, milestoneStatus, ...)
-  store/       PlanStore interface, LocalStore, ClaudeArtifactStore, createStore (adapter choice)
+  store/       PlanStore interface, LocalStore, DocDbStore (shared live logic) with
+               ClaudeArtifactStore and FirebaseStore on top, createStore (adapter choice)
   hooks/       usePlan (store -> React, one render per animation frame), useToast
   components/  Splash, PlanScreen, TeamProgress, ViewTabs, CardsView, GoalCard, TableView,
                TimelineView, Peek, Mountain, MilestoneList, RecentProgress, Toast

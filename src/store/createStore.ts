@@ -1,4 +1,6 @@
 import { ClaudeArtifactStore, type ClaudeDb, type ClaudeUser } from './ClaudeArtifactStore';
+import type { DocDb } from './DocDbStore';
+import { connectFirestore, firebaseConfigFromEnv, FirebaseStore, type FirebaseConfig } from './FirebaseStore';
 import { LocalStore } from './LocalStore';
 import type { PlanStore } from './PlanStore';
 
@@ -6,8 +8,17 @@ export interface HostWindow {
   claude?: { use?: (name: string) => Promise<unknown> };
 }
 
-/** Live store when the claude.ai runtime provides a db, otherwise this-device storage. */
-export async function createStore(win: HostWindow | undefined = typeof window === 'undefined' ? undefined : (window as HostWindow)): Promise<PlanStore> {
+/**
+ * Picks the backend at startup:
+ * 1. claude.ai Artifact db, when window.claude.use resolves one;
+ * 2. Firebase, when VITE_FIREBASE_* variables were set at build time (e.g. on Vercel);
+ * 3. this-device storage otherwise.
+ */
+export async function createStore(
+  win: HostWindow | undefined = typeof window === 'undefined' ? undefined : (window as HostWindow),
+  firebase: FirebaseConfig | null = firebaseConfigFromEnv(),
+  connect: (c: FirebaseConfig) => Promise<DocDb> = connectFirestore,
+): Promise<PlanStore> {
   let db: ClaudeDb | null = null;
   let user: ClaudeUser | null = null;
   try {
@@ -18,6 +29,13 @@ export async function createStore(win: HostWindow | undefined = typeof window ==
   } catch {
     db = null;
   }
-  if (!db) return new LocalStore();
-  return new ClaudeArtifactStore(db, user);
+  if (db) return new ClaudeArtifactStore(db, user);
+  if (firebase) {
+    try {
+      return new FirebaseStore(await connect(firebase));
+    } catch {
+      /* SDK failed to load or bad config: keep working on this device */
+    }
+  }
+  return new LocalStore();
 }

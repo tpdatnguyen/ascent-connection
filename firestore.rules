@@ -1,0 +1,30 @@
+rules_version = '2';
+// Firestore security rules for The Ascent (paste into Firebase console → Firestore → Rules).
+// There is no sign-in, so anyone with the site link can tick steps and edit the plan.
+// To lock the plan text, change `allow write: if true` to `if false` for goals and steps:
+// the "Edit plan" button then disappears after the first refused save.
+service cloud.firestore {
+  match /databases/{db}/documents {
+    match /goals/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /steps/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /progress/{stepId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['goal', 'at'])
+        && request.resource.data.goal is string && request.resource.data.at is string;
+      allow delete: if true;
+    }
+    match /meta/milestones {
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['reached', 'celebrated']);
+    }
+    match /{other=**} {
+      allow read, write: if false;
+    }
+  }
+}
