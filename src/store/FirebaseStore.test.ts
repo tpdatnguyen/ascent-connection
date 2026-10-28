@@ -295,6 +295,17 @@ describe('FirebaseStore: writes', () => {
     expect(t.writes.find((w) => w.path === 'meta/milestones')?.data).toEqual({ reached: {}, celebrated: {} });
   });
 
+  it('seeding also writes each first step as the signed-in admin, so the rules accept it', async () => {
+    const t = setup();
+    t.login(admin);
+    t.access(ACCESS);
+    t.coll('goals', {}); t.coll('steps', {}); t.coll('progress', {}); t.meta(null);
+    await t.store.seedDefaultPlan();
+    const ticks = t.writes.filter((w) => w.path.startsWith('progress/'));
+    expect(ticks.map((w) => w.path).sort()).toEqual(['progress/g1s1', 'progress/g2s1', 'progress/g3s1', 'progress/g4s1']);
+    ticks.forEach((w) => expect(w.data).toMatchObject({ by: 'u-owner', goal: w.path.slice(9, 11) }));
+  });
+
   it('runs writes to the same document one at a time', async () => {
     const t = await ready();
     const order: string[] = [];

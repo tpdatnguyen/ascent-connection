@@ -172,6 +172,10 @@ export class DocDbStore implements PlanStore {
     const writes: Promise<void>[] = [];
     d.goals.forEach((g) => writes.push(this.enqueue('pl-g' + g.id, 'plan', () => this.db.doc('goals/' + g.id).set({ order: g.order, name: g.name, goal: g.goal, meaning: g.meaning }))));
     d.steps.forEach((s) => writes.push(this.enqueue('pl-s' + s.id, 'plan', () => this.db.doc('steps/' + s.id).set({ goal: s.goal, order: s.order, t: s.t }))));
+    Object.entries(d.progress).forEach(([id, p]) => {
+      if (this.progress[id]) return;
+      writes.push(this.enqueue('pr' + id, 'progress', () => this.db.doc('progress/' + id).set({ goal: p.goal, at: p.at })));
+    });
     writes.push(this.enqueue('meta', 'progress', () => this.db.doc('meta/milestones').set({ reached: {}, celebrated: {} })));
     await Promise.all(writes);
   }

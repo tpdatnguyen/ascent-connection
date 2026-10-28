@@ -289,6 +289,13 @@ export class FirebaseStore implements PlanStore {
     const writes: Promise<void>[] = [];
     d.goals.forEach((g) => writes.push(this.enqueue('goals/' + g.id, 'plan', () => this.fb.set('goals/' + g.id, { order: g.order, name: g.name, goal: g.goal, meaning: g.meaning }))));
     d.steps.forEach((s) => writes.push(this.enqueue('steps/' + s.id, 'plan', () => this.fb.set('steps/' + s.id, { goal: s.goal, order: s.order, t: s.t }))));
+    // Rules require by == the signed-in uid, so the seed placeholder is replaced with it.
+    const uid = this.user?.uid;
+    if (!uid) throw new ReadOnlyError('progress');
+    Object.entries(d.progress).forEach(([id, p]) => {
+      if (this.progress[id]) return;
+      writes.push(this.enqueue('progress/' + id, 'progress', () => this.fb.set('progress/' + id, { goal: p.goal, at: p.at, by: uid })));
+    });
     if (!this.metaExists) writes.push(this.enqueue('meta/milestones', 'progress', () => this.fb.set('meta/milestones', { reached: {}, celebrated: {} })));
     await Promise.all(writes);
   }

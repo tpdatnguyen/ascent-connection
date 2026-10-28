@@ -24,15 +24,25 @@ const DEF = [
 
 export type PlanData = Pick<PlanState, 'goals' | 'steps' | 'progress' | 'meta'>;
 
-/** The default plan used to seed an empty store. */
-export function defaultPlan(): PlanData {
+/** Placeholder `by` on seeded ticks; stores that need a real uid replace it. */
+export const SEED_BY = 'seed';
+/** Seeded first-step ticks fall this many days after the plan start (Wed..Sat of week 1), at noon local. */
+const SEED_DAY_OFFSETS = [2, 3, 4, 5];
+
+/** The default plan used to seed an empty store: each person's first step is already done in week 1. */
+export function defaultPlan(start: readonly [number, number, number] = PLAN_START): PlanData {
   const goals: Goal[] = [];
   const steps: Step[] = [];
   DEF.forEach((d, gi) => {
     goals.push({ id: d.id, order: gi + 1, name: d.name, goal: d.goal, meaning: d.meaning });
     d.steps.forEach((t, i) => steps.push({ id: d.id + 's' + (i + 1), goal: d.id, order: i + 1, t }));
   });
-  return { goals, steps, progress: {}, meta: { reached: {}, celebrated: {} } };
+  const progress: PlanData['progress'] = {};
+  goals.forEach((g, gi) => {
+    const at = new Date(start[0], start[1], start[2] + SEED_DAY_OFFSETS[gi % SEED_DAY_OFFSETS.length], 12).toISOString();
+    progress[g.id + 's1'] = { goal: g.id, at, by: SEED_BY };
+  });
+  return { goals, steps, progress, meta: { reached: {}, celebrated: {} } };
 }
 
 export function initials(name: string): string {

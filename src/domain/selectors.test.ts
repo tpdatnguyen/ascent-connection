@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { KICKOFF_COLUMN, timelineColumn, weekOf, weekOfKey } from './dates';
-import { defaultPlan, MILESTONES, REVIEW } from './plan';
+import { defaultPlan, MILESTONES, PLAN_START, REVIEW, SEED_BY } from './plan';
 import { canTick, climberPosition, deriveGoals, milestonesCrossed, milestoneStatus, nextMilestone, recentProgress, stepDotsByWeek, teamPercent } from './selectors';
 import type { Meta } from './types';
 
+/** The default plan with its seeded ticks removed. */
+const emptyPlan = () => ({ ...defaultPlan(), progress: {} as ReturnType<typeof defaultPlan>['progress'] });
+
 /** Default plan with the first `counts[i]` steps of goal i done. */
 function planWith(counts: number[], at = '2026-10-27T10:00:00.000Z') {
-  const p = defaultPlan();
+  const p = emptyPlan();
   p.goals.forEach((g, gi) => {
     for (let s = 1; s <= (counts[gi] ?? 0); s++) p.progress[g.id + 's' + s] = { goal: g.id, at };
   });
@@ -15,7 +18,7 @@ function planWith(counts: number[], at = '2026-10-27T10:00:00.000Z') {
 
 describe('deriveGoals', () => {
   it('orders goals and steps, counts done, computes percent and last update', () => {
-    const p = defaultPlan();
+    const p = emptyPlan();
     p.goals.reverse();
     p.steps.reverse();
     p.progress.g2s1 = { goal: 'g2', at: '2026-10-27T09:00:00.000Z' };
@@ -63,7 +66,7 @@ describe('teamPercent', () => {
     expect(teamPercent(planWith([5, 5, 5, 5]))).toBe(100);
   });
   it('rounds half up and to nearest with uneven step counts', () => {
-    const p = defaultPlan();
+    const p = emptyPlan();
     p.steps = p.steps.filter((s) => s.goal === 'g1').slice(0, 3); // 3 steps total
     p.progress.g1s1 = { goal: 'g1', at: '2026-10-27T00:00:00.000Z' };
     expect(teamPercent(deriveGoals(p))).toBe(33); // 33.33
@@ -162,7 +165,7 @@ describe('weekOf', () => {
 
 describe('recentProgress and climber', () => {
   it('returns the latest 6 finished steps, newest first', () => {
-    const p = defaultPlan();
+    const p = emptyPlan();
     for (let i = 1; i <= 5; i++) p.progress['g1s' + i] = { goal: 'g1', at: `2026-10-2${i + 3}T00:00:00.000Z` };
     for (let i = 1; i <= 3; i++) p.progress['g2s' + i] = { goal: 'g2', at: `2026-11-0${i}T00:00:00.000Z` };
     const feed = recentProgress(deriveGoals(p));
@@ -183,7 +186,7 @@ describe('timeline', () => {
   const local = (d: number, m = 10) => new Date(2026, m - 1, d, 12).toISOString();
   /** Fixture: each of the 4 people ticked exactly their first step on the given days. */
   const firstSteps = (days: number[]) => {
-    const p = defaultPlan();
+    const p = emptyPlan();
     p.goals.forEach((g, i) => { p.progress[g.id + 's1'] = { goal: g.id, at: local(days[i]) }; });
     return deriveGoals(p);
   };
@@ -226,5 +229,47 @@ describe('timeline', () => {
     expect(timelineColumn('2026-10-26')).toBe(2);
     expect(timelineColumn('2026-11-29')).toBe(6);
     expect(timelineColumn('2026-12-15')).toBe(KICKOFF_COLUMN);
+  });
+});
+
+describe('seeded default plan', () => {
+  it('has exactly one tick per person: their first step, inside week 1, not before the start', () => {
+    const p = defaultPlan();
+    const ids = Object.keys(p.progress).sort();
+    expect(ids).toEqual(['g1s1', 'g2s1', 'g3s1', 'g4s1']);
+    const start = new Date(...PLAN_START).getTime();
+    for (const id of ids) {
+      const t = p.progress[id];
+      expect(t.goal).toBe(id.slice(0, 2));
+      expect(t.by).toBe(SEED_BY);
+      expect(new Date(t.at).getTime()).toBeGreaterThanOrEqual(start);
+      expect(weekOf(t.at)).toBe(1);
+      expect(p.steps.find((s) => s.id === id)?.order).toBe(1);
+    }
+  });
+
+  it('reads through the selectors as 1 dot each, 20% each, 20% team, nothing reached', () => {
+    const goals = deriveGoals(defaultPlan());
+    goals.forEach((g) => {
+      expect(stepDotsByWeek(g)).toEqual([1, 0, 0, 0, 0, 0]);
+      expect(g.pct).toBe(20);
+    });
+    const pct = teamPercent(goals);
+    expect(pct).toBe(20);
+    expect(MILESTONES.filter((m) => pct >= m.thr)).toEqual([]);
+    expect(nextMilestone(pct)).toMatchObject({ name: 'Foundation', thr: 30, dueLabel: 'Mon, Nov 9' });
+  });
+
+  it('moves with the plan start and still lands in week 1', () => {
+    const shifted = [2027, 0, 4] as const; // Mon Jan 4 2027
+    const p = defaultPlan(shifted);
+    const base = defaultPlan();
+    for (const id of Object.keys(p.progress)) {
+      const days = Math.round((new Date(p.progress[id].at).getTime() - new Date(base.progress[id].at).getTime()) / 864e5);
+      expect(days).toBe(Math.round((Date.UTC(2027, 0, 4) - Date.UTC(...PLAN_START)) / 864e5));
+      const off = (new Date(p.progress[id].at).getTime() - new Date(...shifted).getTime()) / 864e5;
+      expect(off).toBeGreaterThanOrEqual(2);
+      expect(off).toBeLessThan(7);
+    }
   });
 });

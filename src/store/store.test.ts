@@ -79,7 +79,7 @@ describe('LocalStore', () => {
     await store.markReached({ m1: '2026-11-09' });
     await store.markCelebrated('m1');
     const saved = JSON.parse(kv.data[LOCAL_KEY]);
-    expect(Object.keys(saved.progress)).toEqual(['g1s1']);
+    expect(Object.keys(saved.progress).sort()).toEqual(['g1s1', 'g2s1', 'g3s1', 'g4s1']); // g1s1 re-ticked; the rest are the seed
     expect(saved.progress.g1s1).toEqual({ goal: 'g1', at: now.toISOString() });
     expect(saved.goals[0].goal).toBe('New title');
     expect(saved.steps.find((s: any) => s.id === 'g1s3').t).toBe('New step');
@@ -151,6 +151,8 @@ describe('ClaudeArtifactStore', () => {
     expect(s.goals).toHaveLength(4);
     expect(s.steps).toHaveLength(20);
     expect(s.goals[0]).toEqual({ id: 'g1', order: 1, name: 'Danny Nguyen', goal: 'Spread the Word', meaning: 'People in Springfield know about the kickoff' });
+    expect(Object.keys(s.progress).sort()).toEqual(['g1s1', 'g2s1', 'g3s1', 'g4s1']);
+    expect(s.progress.g1s1).toEqual({ goal: 'g1', at: expect.any(String) });
     expect(m.listeners).toHaveLength(4);
   });
 
