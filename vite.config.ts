@@ -7,6 +7,8 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 export default defineConfig(({ mode }) => ({
   plugins: mode === 'single' ? [viteSingleFile()] : [],
   esbuild: { jsx: 'automatic' },
-  build: { target: 'es2020' },
+  // The only large chunk is the lazily loaded Firebase SDK (~135 KB gzip), fetched only when
+  // VITE_FIREBASE_* is set; the startup chunk stays ~60 KB gzip.
+  build: { target: 'es2020', chunkSizeWarningLimit: 600 },
   test: { environment: 'node', include: ['src/**/*.test.ts'] },
 }));
