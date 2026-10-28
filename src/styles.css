@@ -4,7 +4,6 @@
 :root{
   --bg:#E6E2DA; --card:#F5F2EC; --line:#D6D0C4; --line2:#E4DFD5; --ink:#101111; --muted:#6B665D;
   --green:#154230; --green2:#2C6B50; --tint:#DFE6DF; --warn:#5D1E21; --gold:#A6824A; --warnbg:#F0E3E1;
-  --flag-green:#1E4C38;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}

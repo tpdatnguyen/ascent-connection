@@ -28,7 +28,7 @@ export const Mountain = memo(function Mountain({ pct }: { pct: number }) {
           </Fragment>
         );
       })}
-      <path d="M470 48V14" stroke="#101111" strokeWidth="1.5" /><path d="M470 14l18 6l-18 6z" style={{ fill: 'var(--flag-green)' }} />
+      <path d="M470 48V14" stroke="#101111" strokeWidth="1.5" /><path d="M470 14l18 6l-18 6z" fill="#5D1E21" />
       <circle cx={cx} cy={cy} r="9" fill="#154230" opacity=".18" /><circle cx={cx} cy={cy} r="5" fill="#154230" stroke="#fff" strokeWidth="1.5" />
     </svg>
   );

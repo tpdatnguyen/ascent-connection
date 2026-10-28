@@ -29,7 +29,7 @@ const HILLS = `
   <circle cx="640" cy="420" r="6"/><circle cx="690" cy="316" r="6"/><circle cx="735" cy="214" r="6"/>
 </g>
 <path d="M760 132 V30" stroke="#101111" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M761 30 C774 25 786 37 800 32 L800 58 C786 63 774 51 761 56Z" style="fill:var(--flag-green)"/>
+<path d="M761 30 C774 25 786 37 800 32 L800 58 C786 63 774 51 761 56Z" fill="#6E2428"/>
 <g class="climbers">${FIGURE(702, 136, '#101111')}${FIGURE(732, 134, '#154230')}${FIGURE(789, 134, '#5D1E21')}${FIGURE(819, 136, '#A6824A')}</g>
 <path d="M0 450 C180 420 320 470 520 456 C720 442 860 486 1060 468 C1240 452 1340 440 1440 446 V520 H0Z" fill="#3A6A53"/>
 <path d="M0 488 C220 470 420 500 700 492 C960 484 1200 500 1440 486 V520 H0Z" fill="#24503D"/>`;
