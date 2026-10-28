@@ -62,7 +62,7 @@ export class LocalStore implements PlanStore {
   }
 
   private snapshot(): PlanState {
-    return { status: 'local', ...this.data, ready: true, revoked: false };
+    return { status: 'local', ...this.data, ready: true, metaLoaded: true, revoked: false };
   }
 
   subscribe(onChange: (s: PlanState) => void): () => void {

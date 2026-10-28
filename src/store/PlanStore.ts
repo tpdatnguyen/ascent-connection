@@ -16,6 +16,9 @@ export interface PlanStore {
   permissions(): Promise<Permissions>;
   /** Writes the default plan into an empty backend (optional). */
   seedDefaultPlan?(): Promise<void>;
+  /** For backends with sign-in (PlanState.session is set). */
+  signIn?(): Promise<void>;
+  signOut?(): Promise<void>;
 }
 
 /** A write was refused because the user may not change this part of the plan. */
@@ -33,5 +36,6 @@ export const LOADING_STATE: PlanState = {
   progress: {},
   meta: { reached: {}, celebrated: {} },
   ready: false,
+  metaLoaded: false,
   revoked: false,
 };

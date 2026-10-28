@@ -1,6 +1,6 @@
 import { ClaudeArtifactStore, type ClaudeDb, type ClaudeUser } from './ClaudeArtifactStore';
-import type { DocDb } from './DocDbStore';
-import { connectFirestore, firebaseConfigFromEnv, FirebaseStore, type FirebaseConfig } from './FirebaseStore';
+import { connectFirebase, firebaseConfigFromEnv, FirebaseStore, type FirebaseConfig } from './FirebaseStore';
+import type { FbBackend } from './firebase/types';
 import { LocalStore } from './LocalStore';
 import type { PlanStore } from './PlanStore';
 
@@ -11,13 +11,13 @@ export interface HostWindow {
 /**
  * Picks the backend at startup:
  * 1. claude.ai Artifact db, when window.claude.use resolves one;
- * 2. Firebase, when VITE_FIREBASE_* variables were set at build time (e.g. on Vercel);
+ * 2. Firebase, when all VITE_FIREBASE_* variables were set at build time (e.g. on Vercel);
  * 3. this-device storage otherwise.
  */
 export async function createStore(
   win: HostWindow | undefined = typeof window === 'undefined' ? undefined : (window as HostWindow),
   firebase: FirebaseConfig | null = firebaseConfigFromEnv(),
-  connect: (c: FirebaseConfig) => Promise<DocDb> = connectFirestore,
+  connect: (c: FirebaseConfig) => Promise<FbBackend> = connectFirebase,
 ): Promise<PlanStore> {
   let db: ClaudeDb | null = null;
   let user: ClaudeUser | null = null;

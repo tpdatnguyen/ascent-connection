@@ -23,10 +23,12 @@ function savedView(): View {
 }
 
 function StatusBadge({ plan }: { plan: PlanApi }) {
-  const { status } = plan.state;
+  const { status, connection } = plan.state;
   let text = 'Saved on this device only';
   let on = false;
   if (status === 'loading') text = 'Loading...';
+  else if (status === 'live' && connection === 'connecting') text = 'Connecting...';
+  else if (status === 'live' && connection === 'offline') text = 'Offline, changes will sync';
   else if (status === 'live' && plan.canProgress) { text = 'Live · everyone sees updates'; on = true; }
   else if (status === 'live') text = 'View only';
   return <span className={'live' + (on ? ' on' : '')} role="status">{text}</span>;
@@ -74,6 +76,9 @@ export function PlanScreen({ plan }: { plan: PlanApi }) {
             <div className="sp" />
             <StatusBadge plan={plan} />
             <button type="button" className="btn ghost sm" hidden={!showEdit} onClick={toggleEdit}>{editing ? 'Done editing' : 'Edit plan'}</button>
+            {state.session && plan.signOut ? (
+              <button type="button" className="btn ghost sm" onClick={plan.signOut} title={state.session.email ? 'Signed in as ' + state.session.email : undefined}>Sign out</button>
+            ) : null}
           </div>
           <TeamProgress pct={pct} />
           <ViewTabs view={view} onChange={setView} />

@@ -85,7 +85,10 @@ export class DocDbStore implements PlanStore {
       this.meta = { reached: d.reached || {}, celebrated: d.celebrated || {} };
       this.loaded.meta = true;
       this.emit();
-    }, () => {});
+    }, () => {
+      this.loaded.meta = true;
+      this.emit();
+    });
   }
 
   private snapshot(): PlanState {
@@ -97,6 +100,7 @@ export class DocDbStore implements PlanStore {
       progress: this.progress,
       meta: this.meta,
       ready: l.goals && l.steps && l.progress,
+      metaLoaded: l.meta,
       revoked: this.revoked,
     };
   }

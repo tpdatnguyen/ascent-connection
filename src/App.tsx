@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AuthGate } from './components/AuthGate';
 import { PlanScreen } from './components/PlanScreen';
 import { Splash } from './components/Splash';
 import { Toast } from './components/Toast';
@@ -18,7 +19,11 @@ export function App({ store }: { store: Promise<PlanStore> }) {
 
   return (
     <>
-      {screen === 'splash' ? <Splash onOpen={openPlan} /> : <PlanScreen plan={plan} />}
+      {screen === 'splash'
+        ? <Splash onOpen={openPlan} />
+        : plan.state.session && plan.state.session.state !== 'ready'
+          ? <AuthGate plan={plan} />
+          : <PlanScreen plan={plan} />}
       <Toast msg={toast.msg} show={toast.show} />
     </>
   );

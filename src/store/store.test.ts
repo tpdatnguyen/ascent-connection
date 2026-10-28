@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import type { PlanState } from '../domain/types';
 import { ClaudeArtifactStore } from './ClaudeArtifactStore';
 import { createStore } from './createStore';
-import { firebaseConfigFromEnv, FirebaseStore } from './FirebaseStore';
 import { LOCAL_KEY, LocalStore, type KeyValue } from './LocalStore';
 import { ReadOnlyError } from './PlanStore';
 
@@ -108,8 +107,6 @@ describe('LocalStore', () => {
 });
 
 describe('createStore', () => {
-  const fbConfig = { apiKey: 'k', projectId: 'p', appId: 'a' };
-
   it('uses LocalStore without window.claude or Firebase config', async () => {
     expect(await createStore(undefined, null)).toBeInstanceOf(LocalStore);
     expect(await createStore({}, null)).toBeInstanceOf(LocalStore);
@@ -120,30 +117,12 @@ describe('createStore', () => {
     expect(await createStore({ claude: { use: async () => { throw new Error('no'); } } }, null)).toBeInstanceOf(LocalStore);
   });
 
-  it('uses FirebaseStore when Firebase is configured and there is no claude.ai db', async () => {
-    const connect = vi.fn(async () => mockDb().db);
-    const store = await createStore({}, fbConfig, connect);
-    expect(store).toBeInstanceOf(FirebaseStore);
-    expect(connect).toHaveBeenCalledWith(fbConfig);
-    expect(await store.permissions()).toEqual({ canProgress: true, canEditPlan: true });
-  });
-
-  it('falls back to LocalStore when Firebase cannot connect', async () => {
-    expect(await createStore({}, fbConfig, async () => { throw new Error('offline'); })).toBeInstanceOf(LocalStore);
-  });
-
   it('prefers the claude.ai db over Firebase', async () => {
     const { db } = mockDb();
     const connect = vi.fn();
-    const store = await createStore({ claude: { use: async (n: string) => (n === 'db' ? db : null) } }, fbConfig, connect);
+    const store = await createStore({ claude: { use: async (n: string) => (n === 'db' ? db : null) } }, { apiKey: 'k', authDomain: 'd', projectId: 'p', appId: 'a' }, connect);
     expect(store).toBeInstanceOf(ClaudeArtifactStore);
     expect(connect).not.toHaveBeenCalled();
-  });
-
-  it('reads Firebase config from VITE_FIREBASE_* variables', () => {
-    expect(firebaseConfigFromEnv({})).toBeNull();
-    expect(firebaseConfigFromEnv({ VITE_FIREBASE_API_KEY: 'k', VITE_FIREBASE_PROJECT_ID: 'p' })).toBeNull();
-    expect(firebaseConfigFromEnv({ VITE_FIREBASE_API_KEY: 'k', VITE_FIREBASE_PROJECT_ID: 'p', VITE_FIREBASE_APP_ID: 'a' })).toEqual({ apiKey: 'k', projectId: 'p', appId: 'a', authDomain: 'p.firebaseapp.com' });
   });
 
   it('uses ClaudeArtifactStore when window.claude.use resolves a db', async () => {
@@ -220,13 +199,6 @@ describe('ClaudeArtifactStore', () => {
     await expect(store.setStepDone('g1', 'g1s1', true)).rejects.toEqual({ code: 'unavailable' });
     await expect(store.setStepDone('g1', 'g1s1', true)).rejects.toEqual({ code: 'unavailable' });
     expect(m.calls).toHaveLength(2);
-  });
-
-  it('FirebaseStore maps permission-denied to read-only', async () => {
-    const store = new FirebaseStore(mockDb({ failWith: 'permission-denied' }).db);
-    await expect(store.updateGoal('g1', { goal: 'x' })).rejects.toEqual(new ReadOnlyError('plan'));
-    await expect(store.setStepDone('g1', 'g1s1', true)).rejects.toEqual(new ReadOnlyError('progress'));
-    expect(last(store).status).toBe('live');
   });
 
   it('reads permissions from user.can and user.canEdit', async () => {
