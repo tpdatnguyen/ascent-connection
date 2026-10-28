@@ -103,21 +103,21 @@ describe('milestoneStatus', () => {
   const meta = (reached: Meta['reached'] = {}, celebrated: Meta['celebrated'] = {}): Meta => ({ reached, celebrated });
 
   it('labels early / on time / late from the first reached date', () => {
-    expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-08' }), '2026-11-08')).toMatchObject({ kind: 'reached', timing: 'early' });
-    expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-09' }), '2026-11-09')).toMatchObject({ kind: 'reached', timing: 'on time' });
-    expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-10' }), '2026-11-10')).toMatchObject({ kind: 'reached', timing: 'late' });
+    expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-01' }), '2026-11-01')).toMatchObject({ kind: 'reached', timing: 'early' });
+    expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-02' }), '2026-11-02')).toMatchObject({ kind: 'reached', timing: 'on time' });
+    expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-03' }), '2026-11-03')).toMatchObject({ kind: 'reached', timing: 'late' });
     expect(milestoneStatus(m3, 100, meta({ m3: '2026-11-30' }), '2026-11-30')).toMatchObject({ timing: 'on time' });
   });
   it('has no timing label when no reached date is stored', () => {
     expect(milestoneStatus(m2, 70, meta(), '2026-11-01')).toEqual({ kind: 'reached', timing: null, celebratedOn: null });
   });
   it('reports the celebration date', () => {
-    expect(milestoneStatus(m1, 40, meta({ m1: '2026-11-02' }, { m1: '2026-11-04' }), '2026-11-05')).toEqual({ kind: 'reached', timing: 'early', celebratedOn: '2026-11-04' });
+    expect(milestoneStatus(m1, 40, meta({ m1: '2026-11-01' }, { m1: '2026-11-02' }), '2026-11-03')).toEqual({ kind: 'reached', timing: 'early', celebratedOn: '2026-11-02' });
   });
   it('is Behind only after the due date and while not reached', () => {
-    expect(milestoneStatus(m1, 25, meta(), '2026-11-09')).toEqual({ kind: 'not-yet' });
-    expect(milestoneStatus(m1, 25, meta(), '2026-11-10')).toEqual({ kind: 'behind' });
-    expect(milestoneStatus(m1, 30, meta(), '2026-11-10').kind).toBe('reached');
+    expect(milestoneStatus(m1, 25, meta(), '2026-11-02')).toEqual({ kind: 'not-yet' });
+    expect(milestoneStatus(m1, 25, meta(), '2026-11-03')).toEqual({ kind: 'behind' });
+    expect(milestoneStatus(m1, 30, meta(), '2026-11-03').kind).toBe('reached');
   });
   it('follows current percent, so un-ticking below a reached milestone shows Not yet / Behind again', () => {
     expect(milestoneStatus(m2, 60, meta({ m2: '2026-11-13' }), '2026-11-14')).toEqual({ kind: 'not-yet' });
@@ -156,7 +156,7 @@ describe('weekOf', () => {
     expect(weekOf(new Date(2026, 10, 3))).toBe(3);
   });
   it('places milestones and the review by date', () => {
-    expect(weekOfKey('2026-11-09')).toBe(4);
+    expect(weekOfKey('2026-11-02')).toBe(3);
     expect(weekOfKey('2026-11-16')).toBe(5);
     expect(weekOfKey('2026-11-23')).toBe(6);
     expect(weekOfKey('2026-11-30')).toBe(6);
@@ -201,7 +201,7 @@ describe('timeline', () => {
     expect(pct).toBe(20);
     expect(MILESTONES.filter((m) => pct >= m.thr)).toEqual([]);
     const nxt = nextMilestone(pct);
-    expect(`Next: ${nxt?.name} at ${nxt?.thr}% · due ${nxt?.dueLabel}`).toBe('Next: Foundation at 30% · due Mon, Nov 9');
+    expect(`Next: ${nxt?.name} at ${nxt?.thr}% · due ${nxt?.dueLabel}`).toBe('Next: Foundation at 30% · due Mon, Nov 2');
   });
 
   it('Fixture B: the same ticks on Oct 28 move the dots to week 2', () => {
@@ -212,7 +212,7 @@ describe('timeline', () => {
 
   it('places each milestone by its due date', () => {
     const col = (key: string) => timelineColumn(MILESTONES.find((m) => m.key === key)!.due);
-    expect(col('m1')).toBe(4);
+    expect(col('m1')).toBe(3);
     expect(col('m2')).toBe(5);
     expect(timelineColumn(REVIEW.due)).toBe(6);
     expect(col('m3')).toBe(KICKOFF_COLUMN);
@@ -257,7 +257,7 @@ describe('seeded default plan', () => {
     const pct = teamPercent(goals);
     expect(pct).toBe(20);
     expect(MILESTONES.filter((m) => pct >= m.thr)).toEqual([]);
-    expect(nextMilestone(pct)).toMatchObject({ name: 'Foundation', thr: 30, dueLabel: 'Mon, Nov 9' });
+    expect(nextMilestone(pct)).toMatchObject({ name: 'Foundation', thr: 30, dueLabel: 'Mon, Nov 2' });
   });
 
   it('moves with the plan start and still lands in week 1', () => {

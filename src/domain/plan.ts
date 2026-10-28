@@ -8,7 +8,7 @@ export const PLAN_WEEKS = 6;
 export const REVIEW = { due: '2026-11-23', dueLabel: 'Mon, Nov 23' };
 
 export const MILESTONES: Milestone[] = [
-  { key: 'm1', name: 'Foundation', thr: 30, due: '2026-11-09', dueLabel: 'Mon, Nov 9', reward: 'Team Treat' },
+  { key: 'm1', name: 'Foundation', thr: 30, due: '2026-11-02', dueLabel: 'Mon, Nov 2', reward: 'Team Treat' },
   { key: 'm2', name: 'Built', thr: 65, due: '2026-11-16', dueLabel: 'Mon, Nov 16', reward: 'Team Lunch' },
   { key: 'm3', name: 'Kickoff-ready', thr: 100, due: '2026-11-30', dueLabel: 'Mon, Nov 30', reward: 'Summit BBQ, hosted by Logan' },
 ];

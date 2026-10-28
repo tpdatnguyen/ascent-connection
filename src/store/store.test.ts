@@ -76,14 +76,14 @@ describe('LocalStore', () => {
     await store.setStepDone('g1', 'g1s2', false);
     await store.updateGoal('g1', { goal: 'New title' });
     await store.updateStep('g1s3', 'New step');
-    await store.markReached({ m1: '2026-11-09' });
+    await store.markReached({ m1: '2026-11-02' });
     await store.markCelebrated('m1');
     const saved = JSON.parse(kv.data[LOCAL_KEY]);
     expect(Object.keys(saved.progress).sort()).toEqual(['g1s1', 'g2s1', 'g3s1', 'g4s1']); // g1s1 re-ticked; the rest are the seed
     expect(saved.progress.g1s1).toEqual({ goal: 'g1', at: now.toISOString() });
     expect(saved.goals[0].goal).toBe('New title');
     expect(saved.steps.find((s: any) => s.id === 'g1s3').t).toBe('New step');
-    expect(saved.meta).toEqual({ reached: { m1: '2026-11-09' }, celebrated: { m1: '2026-11-09' } });
+    expect(saved.meta).toEqual({ reached: { m1: '2026-11-02' }, celebrated: { m1: '2026-11-09' } });
 
     // a new store reads it back
     const again = last(new LocalStore(kv));
