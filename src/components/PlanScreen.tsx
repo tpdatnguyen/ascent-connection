@@ -72,7 +72,7 @@ export function PlanScreen({ plan }: { plan: PlanApi }) {
         <div className="wrap">
           <div className="top">
             <h2>The <span>Ascent</span></h2>
-            <span className="kick">6 weeks · Kickoff Day Monday, December 7, 2026</span>
+            <span className="kick">5 weeks · Kickoff Day Monday, November 30, 2026</span>
             <div className="sp" />
             <StatusBadge plan={plan} />
             <button type="button" className="btn ghost sm" hidden={!showEdit} onClick={toggleEdit}>{editing ? 'Done editing' : 'Edit plan'}</button>

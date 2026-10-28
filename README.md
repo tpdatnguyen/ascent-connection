@@ -1,6 +1,6 @@
 # The Ascent (React)
 
-React + TypeScript plan tracker for Kickoff Day, Monday, December 7, 2026: four goals, five
+React + TypeScript plan tracker for Kickoff Day, Monday, November 30, 2026: four goals, five
 ordered steps each, three team milestones. Deployed on Vercel (ascent-connection.vercel.app).
 
 ## Run

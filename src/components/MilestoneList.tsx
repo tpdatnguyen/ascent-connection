@@ -41,8 +41,8 @@ export function MilestoneList({ pct, meta, canProgress, onCelebrate, today = tod
         );
       })}
       <div className="keydates">
-        <span>Go / No-Go huddle: <b>Monday, November 30</b></span>
-        <span>Kickoff Day: <b>Monday, December 7, 2026</b></span>
+        <span>Launch Readiness Review: <b>Monday, November 23</b></span>
+        <span>Kickoff Day: <b>Monday, November 30, 2026</b></span>
       </div>
     </>
   );

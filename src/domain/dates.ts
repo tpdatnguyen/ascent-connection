@@ -25,11 +25,11 @@ export function fmtKey(k: string): string {
   return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-/** Week 1..6 of the plan for a timestamp, clamped. */
+/** Week 1..5 of the plan for a timestamp, clamped. */
 export function weekOf(at: string | Date): number {
   const t = typeof at === 'string' ? new Date(at) : at;
   const w = Math.floor((t.getTime() - planStart().getTime()) / (7 * DAY)) + 1;
-  return Math.min(6, Math.max(1, w));
+  return Math.min(5, Math.max(1, w));
 }
 
 export function weekStart(w: number): Date {

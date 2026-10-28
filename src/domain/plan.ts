@@ -2,8 +2,8 @@ import type { Goal, Milestone, PlanState, Step } from './types';
 
 export const MILESTONES: Milestone[] = [
   { key: 'm1', name: 'Foundation', thr: 30, due: '2026-11-09', dueLabel: 'Mon, Nov 9', reward: 'Team Treat' },
-  { key: 'm2', name: 'Built', thr: 65, due: '2026-11-23', dueLabel: 'Mon, Nov 23', reward: 'Team Lunch' },
-  { key: 'm3', name: 'Kickoff-ready', thr: 100, due: '2026-12-07', dueLabel: 'Mon, Dec 7', reward: 'Summit BBQ, hosted by Logan' },
+  { key: 'm2', name: 'Built', thr: 65, due: '2026-11-16', dueLabel: 'Mon, Nov 16', reward: 'Team Lunch' },
+  { key: 'm3', name: 'Kickoff-ready', thr: 100, due: '2026-11-30', dueLabel: 'Mon, Nov 30', reward: 'Summit BBQ, hosted by Logan' },
 ];
 
 export const COLORS = ['#154230', '#A6824A', '#5D1E21', '#3D3F3E', '#4F7A64', '#8C6A3A'];

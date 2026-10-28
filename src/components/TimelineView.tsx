@@ -4,13 +4,13 @@ import { firstName, MILESTONES } from '../domain/plan';
 import type { DerivedGoal } from '../domain/selectors';
 import { Avatar } from './common';
 
-const WEEKS = [1, 2, 3, 4, 5, 6];
+const WEEKS = [1, 2, 3, 4, 5];
 /** Which milestone is due in which week. */
-const FLAGS: Record<number, number> = { 2: 0, 4: 1, 6: 2 };
+const FLAGS: Record<number, number> = { 2: 0, 3: 1, 5: 2 };
 
 export function TimelineView({ goals, pct, now = weekOf(new Date()) }: { goals: DerivedGoal[]; pct: number; now?: number }) {
   const nowCls = (w: number) => (w === now ? ' now' : '');
-  // The grid relies on a flat list of 7 cells per row (.tl>div:nth-child(7n)).
+  // The grid relies on a flat list of 6 cells per row (.tl>div:nth-child(6n)).
   return (
     <>
       <div className="scroll-x">
@@ -26,7 +26,7 @@ export function TimelineView({ goals, pct, now = weekOf(new Date()) }: { goals: 
             return (
               <div key={'m' + w} className={'cell' + nowCls(w)}>
                 {m ? <span className={'flag' + (hit ? ' hit' : '')}>{m.name}{hit ? ' ✓' : ''}<br />due {m.dueLabel}</span> : null}
-                {w === 5 ? <span className="flag gng">Go / No-Go<br />Mon, Nov 30</span> : null}
+                {w === 4 ? <span className="flag gng">Launch Readiness Review<br />Mon, Nov 23</span> : null}
               </div>
             );
           })}

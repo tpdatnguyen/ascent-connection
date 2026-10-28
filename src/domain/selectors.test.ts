@@ -103,7 +103,7 @@ describe('milestoneStatus', () => {
     expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-08' }), '2026-11-08')).toMatchObject({ kind: 'reached', timing: 'early' });
     expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-09' }), '2026-11-09')).toMatchObject({ kind: 'reached', timing: 'on time' });
     expect(milestoneStatus(m1, 30, meta({ m1: '2026-11-10' }), '2026-11-10')).toMatchObject({ kind: 'reached', timing: 'late' });
-    expect(milestoneStatus(m3, 100, meta({ m3: '2026-12-07' }), '2026-12-07')).toMatchObject({ timing: 'on time' });
+    expect(milestoneStatus(m3, 100, meta({ m3: '2026-11-30' }), '2026-11-30')).toMatchObject({ timing: 'on time' });
   });
   it('has no timing label when no reached date is stored', () => {
     expect(milestoneStatus(m2, 70, meta(), '2026-11-01')).toEqual({ kind: 'reached', timing: null, celebratedOn: null });
@@ -117,8 +117,8 @@ describe('milestoneStatus', () => {
     expect(milestoneStatus(m1, 30, meta(), '2026-11-10').kind).toBe('reached');
   });
   it('follows current percent, so un-ticking below a reached milestone shows Not yet / Behind again', () => {
-    expect(milestoneStatus(m2, 60, meta({ m2: '2026-11-20' }), '2026-11-21')).toEqual({ kind: 'not-yet' });
-    expect(milestoneStatus(m2, 60, meta({ m2: '2026-11-20' }), '2026-11-24')).toEqual({ kind: 'behind' });
+    expect(milestoneStatus(m2, 60, meta({ m2: '2026-11-13' }), '2026-11-14')).toEqual({ kind: 'not-yet' });
+    expect(milestoneStatus(m2, 60, meta({ m2: '2026-11-13' }), '2026-11-17')).toEqual({ kind: 'behind' });
   });
 });
 
@@ -140,13 +140,13 @@ describe('weekOf', () => {
   it('rolls over each Monday', () => {
     expect(weekOf(local(2026, 11, 2))).toBe(2);
     expect(weekOf(local(2026, 11, 9))).toBe(3);
-    expect(weekOf(local(2026, 11, 30))).toBe(6);
+    expect(weekOf(local(2026, 11, 23))).toBe(5);
   });
-  it('clamps Kickoff Day and later to week 6', () => {
-    expect(weekOf(local(2026, 12, 6, 23, 59))).toBe(6);
-    expect(weekOf(local(2026, 12, 7))).toBe(6);
-    expect(weekOf(local(2026, 12, 8))).toBe(6);
-    expect(weekOf(local(2027, 3, 1))).toBe(6);
+  it('clamps Kickoff Day and later to week 5', () => {
+    expect(weekOf(local(2026, 11, 29, 23, 59))).toBe(5);
+    expect(weekOf(local(2026, 11, 30))).toBe(5);
+    expect(weekOf(local(2026, 12, 1))).toBe(5);
+    expect(weekOf(local(2027, 3, 1))).toBe(5);
   });
   it('accepts Date objects', () => {
     expect(weekOf(new Date(2026, 10, 3))).toBe(2);
